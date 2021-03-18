@@ -1,3 +1,4 @@
+import './widgets/chart.dart';
 import 'package:flutter/material.dart';
 import './widgets/new_transaction.dart';
 import './widgets/transaction_list.dart';
@@ -13,6 +14,19 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Expense Tracker',
+      theme: ThemeData(
+        primarySwatch: Colors.purple,
+        accentColor: Colors.amber,
+        fontFamily: 'Cairo',
+        appBarTheme: AppBarTheme(
+          textTheme: ThemeData.light().textTheme.copyWith(
+                title: TextStyle(
+                  fontFamily: 'Cairo',
+                ),
+              ),
+        ),
+        // textTheme: TextTheme(title: )
+      ),
       home: MyHomePage(),
     );
   }
@@ -25,19 +39,31 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _userTransations = [
-    Transaction(
-      id: 't1',
-      title: 'new Shose',
-      amount: 19.00,
-      date: DateTime.now(),
-    ),
-    Transaction(
-      id: 't2',
-      title: 'coffee',
-      amount: 10.00,
-      date: DateTime.now(),
-    ),
+    // Transaction(
+    //   id: 't1',
+    //   title: 'new Shose',
+    //   amount: 19.00,
+    //   date: DateTime.now(),
+    // ),
+    // Transaction(
+    //   id: 't2',
+    //   title: 'coffee',
+    //   amount: 10.00,
+    //   date: DateTime.now(),
+    // ),
   ];
+
+  List<Transaction> get _recentTransactions {
+    return _userTransations.where(
+      (tx) {
+        return tx.date.isAfter(
+          DateTime.now().subtract(
+            Duration(days: 7),
+          ),
+        );
+      },
+    ).toList();
+  }
 
   void _addNewTransaction(String txTitle, double txAmount) {
     final newTx = Transaction(
@@ -56,11 +82,6 @@ class _MyHomePageState extends State<MyHomePage> {
     showModalBottomSheet(
       context: ctx,
       builder: (_) {
-        // return GestureDetector(
-        //   onTap: () {},
-        //   behavior: HitTestBehavior.opaque,
-        //   child: NewTransaction(_addNewTransaction),
-        // );
         return NewTransaction(_addNewTransaction);
       },
     );
@@ -73,8 +94,12 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text('Expense Tracker App'),
         actions: [
           IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () => _startAddNewTransaction(context),
+            icon: Icon(
+              Icons.add,
+            ),
+            onPressed: () => _startAddNewTransaction(
+              context,
+            ),
           ),
         ],
       ),
@@ -83,13 +108,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: double.infinity,
-              child: Card(
-                child: Text('CHART!'),
-                elevation: 5,
-              ),
-            ),
+            Chart(_recentTransactions),
             TransactionList(
               _userTransations,
             ),
@@ -98,8 +117,13 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _startAddNewTransaction(context),
-        child: Icon(Icons.add),
+        backgroundColor: Theme.of(context).accentColor,
+        onPressed: () => _startAddNewTransaction(
+          context,
+        ),
+        child: Icon(
+          Icons.add,
+        ),
       ),
     );
   }
